@@ -37,9 +37,14 @@
         "displayName": "Agent Name",
         "description": "A unique name identifying this agent. If not specified, it defaults to the hostname of the machine running the agent",
         "allowEmpty": true
+    },
+    "linuxUser": {
+        "type": "string",
+        "displayName": "Linux User",
+        "description": "The name of the linux user the agent will run as"
     }
   },
   "runCommand": {
-    "commandToExecute": "[concat('python3 ', './agent-install.py', ' --agent_path ''', parameters('agentPath'), ''' --ado_pat ''', parameters('adoPat'), ''' --ado_account ''', parameters('adoAccount'), ''' --ado_pool ''', parameters('adoPool'), ''' --agent_name ''', parameters('agentName'), '''')]"
+    "commandToExecute": "[concat('python3 ', './agent-install.py', ' --agent_path ''', parameters('agentPath'), ''' --ado_pat ''', parameters('adoPat'), ''' --ado_account ''', parameters('adoAccount'), ''' --ado_pool ''', parameters('adoPool'), ''' --agent_name ''', parameters('agentName'), ''' --linux_user ''', parameters('linuxUser'), '''')]"
   }
 }

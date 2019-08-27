@@ -16,6 +16,7 @@ def parse_args(args):
     parser.add_argument("-a", "--ado_account", required = True)
     parser.add_argument("-l", "--ado_pool", required = True)
     parser.add_argument("-n", "--agent_name", required = False)
+    parser.add_argument("-u", "--linux_user", required = True)
     result = parser.parse_args(args)
     if not result.agent_name:
         result.agent_name = gethostname()
@@ -27,15 +28,15 @@ def combine_command(command):
 def failed(results):
     return results.returncode != 0
 
-def execute_command_silent(command, cwd = None, env = None):
-    results = run(command, stdout = PIPE, stderr = STDOUT, cwd = cwd, env = env)
+def execute_command_silent(command, cwd = None):
+    results = run(command, stdout = PIPE, stderr = STDOUT, cwd = cwd)
     if failed(results):
         raise Exception(f"{combine_command(command)} failed. stdout={results.stdout} stderr={results.stderr}")
     return results
 
-def execute_command(command, cwd = None, env = None):
+def execute_command(command, cwd = None):
     print (combine_command(command))
-    return execute_command_silent(command, cwd = cwd, env = env)
+    return execute_command_silent(command, cwd = cwd)
 
 def ensure_directory(dir):
     if not path.exists(dir):
@@ -69,9 +70,9 @@ def install_dependencies(agent_path):
     ], cwd = agent_path)
 
 def configure_agent(args):
-    d = dict(environ)
-    d["AGENT_ALLOW_RUNASROOT"] = str("1")
     execute_command([
+        "sudo",
+        "-u", args.linux_user,
         "./config.sh",
         "--unattended",
         "--url", f"https://{args.ado_account}.visualstudio.com",
@@ -80,7 +81,7 @@ def configure_agent(args):
         "--agent", args.agent_name,
         "--work",  f"{args.agent_path}/_work",
         "--token", args.ado_pat
-    ], cwd = args.agent_path, env = d)
+    ], cwd = args.agent_path)
 
 def install_and_start(agent_path):
     execute_command([
